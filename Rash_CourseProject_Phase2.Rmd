@@ -1,0 +1,102 @@
+---
+title: "Final Project"
+author: "Sarah Rash"
+date: "`r Sys.Date()`"
+output: html_document
+---
+```{r}
+library(ggplot2)
+library(tidymodels)
+library(tidyverse)
+library(GGally)
+library(ggcorrplot)
+library(tidyverse)
+library(rpart)
+library(readxl)
+library(rpart.plot)
+library(RColorBrewer)
+library(rattle)
+library(caret)
+```
+
+```{r}
+amesstudent = data.frame(read_csv('/Users/sarahtunstall/Documents/BAN_502_PREDICTIVE_ANALYTICS/ames_student-1.csv', col_names = TRUE))
+
+str(amesstudent)
+
+
+test_data <- amesstudent[0:1700, ]
+training_data <- amesstudent[1701:2053, ]
+
+
+```
+
+simple linear regression
+```{r}
+amesstudent_simple = recipe(Above_Median ~ Lot_Area + Gr_Liv_Area, amesstudent)
+
+lg_model = 
+  logistic_reg() |>
+  set_engine("glm")
+
+lg_wflow = 
+  workflow() |>
+  add_model(lg_model) |>
+  add_recipe(amesstudent_simple)
+
+lg_fit = fit(lg_wflow, training_data)
+
+summary(lg_fit$fit$fit$fit)
+
+lgpred = predict(lg_fit, training_data, type = "class")
+head(treepred)
+
+lgpred_test = predict(lg_fit, test_data, type = "class")
+head(treepred_test)
+
+head(amesstudent['Above_Median'])
+
+```
+
+
+
+Decision tree Setup and Testing
+
+```{r}
+tree_recipe = recipe(Above_Median ~ Lot_Area + Gr_Liv_Area, training_data)
+
+tree_model <- decision_tree() |>
+  set_engine("rpart", model = TRUE) |>
+  set_mode("classification")
+
+tree_wflow <- 
+  workflow() |>
+  add_model(tree_model) |>
+  add_recipe(tree_recipe)
+
+tree_fit = fit(tree_wflow, training_data)
+```
+
+
+```{r}
+tree = tree_fit |>
+  pull_workflow_fit() |>
+  pluck("fit")
+
+rpart.plot(tree)
+```
+
+
+```{r}
+treepred = predict(tree_fit, training_data, type = "class")
+head(treepred)
+
+treepred_test = predict(tree_fit, test_data, type = "class")
+head(treepred_test)
+
+summary(tree_fit$fit$fit$fit)
+
+head(amesstudent['Above_Median'])
+
+```
+
